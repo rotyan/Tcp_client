@@ -1,0 +1,527 @@
+
+package xyz.lzw.box;
+ 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.util.Stack;
+ 
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+ 
+/**
+ * 画板 界面
+ */
+public class MainPanel extends JPanel implements KeyListener {
+	int max = 50;
+	int[][] map,maptmp;
+	int X,Y,boxnum;
+	Image[] myImage;
+	Map Levelmap;
+	Map Levelmaptmp;
+	int len = 30;
+	public int level = 1;
+	Stack mystack = new Stack();
+	//构造函数 将图片导入
+	MainPanel(){
+		setBounds(15,50,600,600);
+		setBackground(Color.WHITE);
+		addKeyListener(this);
+		myImage = new Image[10];
+		for(int i = 0;i < 10;i++) {
+			myImage[i] = Toolkit.getDefaultToolkit().getImage("pic\\"+i+".gif");
+		}
+		setVisible(true);
+	}
+	//加载地图
+	void PutBox(int i) {
+		Levelmap = new Map(i);
+		Levelmaptmp = new Map(i);
+		map = Levelmap.getmap();
+		X = Levelmap.getX();
+		Y = Levelmap.getY();
+		maptmp = Levelmaptmp.getmap();
+		repaint(); //重画
+	}
+	//返回最高的关卡
+	int maxlevel() {
+		return max;
+	}
+	//画地图
+	public void paint(Graphics g) {
+		for(int i = 0;i < 20;i++)
+			for(int j = 0;j < 20;j++) {
+				g.drawImage(myImage[map[j][i]], i*len, j*len, this);
+			}
+		g.setColor(new Color(0,0,0));
+		g.setFont(new Font("楷体_2312",Font.BOLD,30));
+		g.drawString("第", 240, 40);
+		g.drawString(String.valueOf(level), 310, 40);
+		g.drawString("层", 360, 40);
+	}
+	@Override
+	public void keyPressed(KeyEvent e) {
+		//由键盘返回上下左右四个方向上的移动
+		if(e.getKeyCode()==KeyEvent.VK_UP){
+			moveup();
+		}
+		else if(e.getKeyCode()==KeyEvent.VK_DOWN) {
+			movedown();
+		}
+		else if(e.getKeyCode()==KeyEvent.VK_LEFT) {
+			moveleft();
+		}
+		else if(e.getKeyCode()==KeyEvent.VK_RIGHT) {
+			moveright();
+		}
+		//判断过关后进行的不同操作
+		if(win()) {
+			//通关了则提示打通全关
+			if(level == max) {
+				JOptionPane.showMessageDialog(this, "恭喜您打通全关!!!");
+			}
+			//弹出一个对话框提示是否进行下一关
+			else {
+				String message = "恭喜您通过了第" + level +"关!\n是否要进入下一关?";
+				int type = JOptionPane.YES_NO_OPTION;
+				String title = "恭喜过关!!!";
+				int option = JOptionPane.showConfirmDialog(null, message,title,type);
+				if(option == 1)
+					System.exit(0);
+				else if(option == 0) {
+					level++;
+					PutBox(level);
+				}	
+			}
+			mystack.removeAllElements();
+		}
+	}
+	@Override
+	public void keyReleased(KeyEvent e) {
+	}
+	@Override
+	public void keyTyped(KeyEvent e) {
+	}
+	//判空
+	boolean isMystackEmpty() {
+		return mystack.isEmpty();
+	}
+	int back() {
+		return (Integer)mystack.pop();
+	}
+	//清空
+	void remove() {
+		mystack.removeAllElements();
+	}
+	//四个方向的移动和悔步 这里要考虑走这一步时能不能走 走过去是什么情况
+	void moveup() {
+		if(map[Y-1][X]==2||map[Y-1][X]==4) {
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+				map[Y][X]=4;
+			else
+				map[Y][X]=2;
+			map[Y-1][X]=8;
+			repaint();
+			Y--;
+			mystack.push(10);
+		}
+		else if(map[Y-1][X]==3) {
+			if(map[Y-2][X]==4) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else 
+					map[Y][X]=2;
+				map[Y-1][X]=8;
+				map[Y-2][X]=9;
+				repaint();
+				Y--;
+				mystack.push(11);
+			}
+			else if(map[Y-2][X]==2) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else 
+					map[Y][X]=2;
+				map[Y-1][X]=8;
+				map[Y-2][X]=3;
+				repaint();
+				Y--;
+				mystack.push(11);
+			}
+			else {
+				map[Y][X]=8;
+				repaint();
+			}
+		}
+		else if(map[Y-1][X]==9) {
+			if(map[Y-2][X]==4) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else
+					map[Y][X]=2;
+				map[Y-1][X]=8;
+				map[Y-2][X]=9;
+				repaint();
+				Y--;
+				mystack.push(11);
+			}
+			else if(map[Y-2][X]==2) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else
+					map[Y][X]=2;
+				map[Y-1][X]=8;
+				map[Y-2][X]=3;
+				repaint();
+				Y--;
+				mystack.push(11);
+			}
+			else {
+				map[Y][X]=8;
+				repaint();
+			}
+		}
+		if(map[Y-1][X]==1) {
+			map[Y][X]=8;
+			repaint();
+		}
+	}
+	void backup(int t) {
+		int cnt = t;
+		if(cnt == 10) {
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9) {
+				map[Y][X]=4;
+			}
+			else
+				map[Y][X]=2;
+		}
+		else if(cnt == 11) {
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+			{
+				map[Y][X]=9;
+			}
+			else
+				map[Y][X]=3;
+			if(maptmp[Y-1][X]==4||maptmp[Y-1][X]==9) {
+				map[Y-1][X]=4;
+			}
+			else 
+				map[Y-1][X]=2;
+		}
+		map[Y+1][X]=8;
+		repaint();
+		Y++;
+	}
+	void movedown() {
+		if(map[Y+1][X]==2||map[Y+1][X]==4) {
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+				map[Y][X]=4;
+			else
+				map[Y][X]=2;
+			map[Y+1][X]=5;
+			repaint();
+			Y++;
+			mystack.push(20);
+		}
+		else if(map[Y+1][X]==3) {
+			if(map[Y+2][X]==4) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else 
+					map[Y][X]=2;
+				map[Y+1][X]=5;
+				map[Y+2][X]=9;
+				repaint();
+				Y++;
+				mystack.push(21);
+			}
+			else if(map[Y+2][X]==2) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else 
+					map[Y][X]=2;
+				map[Y+1][X]=5;
+				map[Y+2][X]=3;
+				repaint();
+				Y++;
+				mystack.push(21);
+			}
+			else {
+				map[Y][X]=5;
+				repaint();
+			}
+		}
+		else if(map[Y+1][X]==9) {
+			if(map[Y+2][X]==4) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else
+					map[Y][X]=2;
+				map[Y+1][X]=5;
+				map[Y+2][X]=9;
+				repaint();
+				Y++;
+				mystack.push(21);
+			}
+			else if(map[Y+2][X]==2) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else
+					map[Y][X]=2;
+				map[Y+1][X]=5;
+				map[Y+2][X]=3;
+				repaint();
+				Y++;
+				mystack.push(21);
+			}
+			else {
+				map[Y][X]=5;
+				repaint();
+			}
+		}
+		if(map[Y+1][X]==1) {
+			map[Y][X]=5;
+			repaint();
+		}
+	}
+	void backdown(int t) {
+		int cnt = t;
+		if(cnt == 20) {
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9) {
+				map[Y][X]=4;
+			}
+			else
+				map[Y][X]=2;
+		}
+		else if(cnt == 21) {
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+			{
+				map[Y][X]=9;
+			}
+			else
+				map[Y][X]=3;
+			if(maptmp[Y+1][X]==4||maptmp[Y+1][X]==9) {
+				map[Y+1][X]=4;
+			}
+			else 
+				map[Y+1][X]=2;
+		}
+		map[Y-1][X]=5;
+		repaint();
+		Y--;
+	}
+	void moveleft() {
+		if(map[Y][X-1]==2||map[Y][X-1]==4) {
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+				map[Y][X]=4;
+			else
+				map[Y][X]=2;
+			map[Y][X-1]=6;
+			repaint();
+			X--;
+			mystack.push(30);
+		}
+		else if(map[Y][X-1]==3) {
+			if(map[Y][X-2]==4) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else 
+					map[Y][X]=2;
+				map[Y][X-1]=6;
+				map[Y][X-2]=9;
+				repaint();
+				X--;
+				mystack.push(31);
+			}
+			else if(map[Y][X-2]==2) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else 
+					map[Y][X]=2;
+				map[Y][X-1]=6;
+				map[Y][X-2]=3;
+				repaint();
+				X--;
+				mystack.push(31);
+			}
+			else {
+				map[Y][X]=6;
+				repaint();
+			}
+		}
+		else if(map[Y][X-1]==9) {
+			if(map[Y][X-2]==4) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else
+					map[Y][X]=2;
+				map[Y][X-1]=6;
+				map[Y][X-2]=9;
+				repaint();
+				X--;
+				mystack.push(31);
+			}
+			else if(map[Y][X-2]==2) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else
+					map[Y][X]=2;
+				map[Y][X-1]=6;
+				map[Y][X-2]=3;
+				repaint();
+				X--;
+				mystack.push(31);
+			}
+			else {
+				map[Y][X]=6;
+				repaint();
+			}
+		}
+		if(map[Y][X-1]==1) {
+			map[Y][X]=6;
+			repaint();
+		}
+	}
+	void backleft(int t)
+	{
+		int cnt=t;
+		if(cnt == 30){
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9){
+				map[Y][X]=4;
+			}
+			else 
+				map[Y][X]=2;
+		}
+		else if(cnt==31){
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9){
+				map[Y][X]=9;
+			}
+			else 
+				map[Y][X]=3;
+			if(maptmp[Y][X-1]==4||maptmp[Y][X-1]==9){
+				map[Y][X-1]=4;
+			}
+			else 
+				map[Y][X-1]=2;
+		}
+		map[Y][X+1]=6;
+		repaint();
+		X++;
+	}
+	void moveright() {
+		if(map[Y][X+1]==2||map[Y][X+1]==4) {
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+				map[Y][X]=4;
+			else
+				map[Y][X]=2;
+			map[Y][X+1]=7;
+			repaint();
+			X++;
+			mystack.push(40);
+		}
+		else if(map[Y][X+1]==3) {
+			if(map[Y][X+2]==4) {
+				if(maptmp[Y][X]==4)
+					map[Y][X]=4;
+				else 
+					map[Y][X]=2;
+				map[Y][X+1]=7;
+				map[Y][X+2]=9;
+				repaint();
+				X++;
+				mystack.push(41);
+			}
+			else if(map[Y][X+2]==2) {
+				if(maptmp[Y][X]==4)
+					map[Y][X]=4;
+				else 
+					map[Y][X]=2;
+				map[Y][X+1]=7;
+				map[Y][X+2]=3;
+				repaint();
+				X++;
+				mystack.push(41);
+			}
+			else {
+				map[Y][X]=7;
+				repaint();
+			}
+		}
+		else if(map[Y][X+1]==9) {
+			if(map[Y][X+2]==4) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else
+					map[Y][X]=2;
+				map[Y][X+1]=7;
+				map[Y][X+2]=9;
+				repaint();
+				X++;
+				mystack.push(41);
+			}
+			else if(map[Y][X+2]==2) {
+				if(maptmp[Y][X]==4||maptmp[Y][X]==9)
+					map[Y][X]=4;
+				else
+					map[Y][X]=2;
+				map[Y][X+1]=7;
+				map[Y][X+2]=3;
+				repaint();
+				X++;
+				mystack.push(41);
+			}
+			else {
+				map[Y][X]=7;
+				repaint();
+			}
+		}
+		else if(map[Y][X+1]==1) {
+			map[Y][X]=7;
+			repaint();
+		}
+	}
+	void backright(int t)
+	{
+		int cnt=t;
+		if(cnt == 40){
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9){
+				map[Y][X]=4;
+			}
+			else 
+				map[Y][X]=2;
+		}
+		else if(cnt == 41){
+			if(maptmp[Y][X]==4||maptmp[Y][X]==9){
+				map[Y][X]=9;
+			}
+			else 
+				map[Y][X]=3;
+			if(maptmp[Y][X+1]==4||maptmp[Y][X+1]==9){
+				map[Y][X+1]=4;
+			}
+			else 
+				map[Y][X+1]=2;
+		}
+		map[Y][X-1]=7;
+		repaint();
+		X--;
+	}
+	//判断是否通关 遍历以便看是否要求位置的标号是否存在即可
+	boolean win() {
+		boolean flag =false;
+		out:for(int i = 0;i < 20;i++)
+			  for(int j = 0;j< 20; j++) {
+				  if(maptmp[i][j]==4||maptmp[i][j]==9)
+					  if(map[i][j] == 9)
+						  flag = true;
+					  else {
+						  flag = false;
+						  break out;
+					  }
+			  }
+		return flag;
+	}

@@ -1,0 +1,24 @@
+package lzt;
+public class ExceptionTest {//创建一个测试类ExceptionTest
+   private static int TOTAL;
+   public static void add(int x, int y) throws NumberRangeException {
+		//定义add方法，同时抛出异常
+		if( x > 100 || x < 0 ) {	
+			throw new NumberRangeException("数字不在指定范围");//如果x>100或者x不是正数，抛出该异常
+		} else if( y > 100 || y <0 ) { 
+			throw new NumberRangeException("数字不在指定范围");//如果y>100或者y不是正数，抛出该异常
+		} //x和y都是有可能产生异常对象
+		else {
+			TOTAL = x + y;
+			System.out.println(TOTAL);//否则输出两个数的和
+		}
+	}
+	public static void main(String[] args) {
+		//定义主方法
+		try {
+			add(99/109,9);//通过这一模块监视x和y的数值，是可以更改的。
+		} catch (NumberRangeException e) {//捕获异常对象NumberRangeException
+			e.printStackTrace();
+		}
+	}
+}

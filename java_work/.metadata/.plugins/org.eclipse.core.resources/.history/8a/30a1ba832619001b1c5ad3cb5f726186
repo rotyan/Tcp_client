@@ -1,0 +1,11 @@
+package xyz.lzw.box;
+/**
+ * ²âÊÔÀà
+ * @author èïÕ×Íş
+ *
+ */
+public class TEXT {
+		public static void main(String[] args) {
+			new mainFrame();
+		}
+}

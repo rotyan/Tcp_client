@@ -1,0 +1,43 @@
+package xyz.lzw.box;
+/**
+ * 声音类
+ */
+import java.io.File;
+ 
+import javax.sound.midi.*;
+ 
+public class Sound {
+	String path = new String("musics\\");
+	String file = new String("nor.mid");
+	Sequence sq;
+	Sequencer mid;
+	boolean sign;
+	//加载音乐
+	void loadSound() {
+		try {
+			sq = MidiSystem.getSequence(new File(path + file));
+			mid = MidiSystem.getSequencer();
+			mid.open();
+			mid.setSequence(sq);
+			mid.start();
+			mid.setLoopCount(Sequencer.LOOP_CONTINUOUSLY);
+		}
+		catch(Exception exit) {
+			exit.printStackTrace();
+		}
+		sign = true;
+	}
+	//关闭音乐
+	void mystop() {
+		mid.stop();
+		mid.close();
+		sign = false;
+	}
+	//查看是否开着音乐
+	boolean isplay() {
+		return sign;
+	}
+	//更改音乐
+	void setMusic(String e) {
+		file = e;
+	}

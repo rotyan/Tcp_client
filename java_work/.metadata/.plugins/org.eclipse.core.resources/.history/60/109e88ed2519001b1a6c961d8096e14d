@@ -1,0 +1,62 @@
+package nnn;
+
+
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.Writer;
+import java.util.Scanner;	//导入各种需要的包
+public class Test {
+	private String stuName;	//定义学生姓名
+	private String stuIdno;	//定义学生学号
+	private float stuScore;	//定义学生分数
+	private String[] stuInfoArray = new String[10];	//声明并创建数组，里面10个String类型数据，名为stuInfoArray
+	private float[] stuScoreArray = new float[5];		//声明并创建数组，里面5个float类型数据，名为stuScoreArray
+    private float allScore = 0.0f;		//定义学生的总成绩，类型为float
+	private float allAveg = 0.0f;		//定义学生的平均成绩，类型为float
+	public Test inputData() {			//定义一个新方法“inputData”，作用是输入数据
+		Scanner input = new Scanner(System.in);//用scanner类扫描键盘，获取输入的数据
+		for(int i = 0; i < 5; i++) {	//用一个循环实现五次对学生姓名
+		System.out.print("请输入学生姓名：");
+		stuName = input.next();
+		System.out.println("请输入学生学号：");
+		stuIdno = input.next();
+		System.out.println("请输入学生java课程成绩：");
+		stuScore = input.nextFloat();
+		stuInfoArray[i] = stuName;
+		stuInfoArray[i+5] = stuIdno;
+		stuScoreArray[i] = stuScore;
+		}
+		return this;	//返回结果
+	}
+	public Test dealData() {		//定义新方法“dealData”，作用是处理数据
+		for(float a : stuScoreArray) {
+			allScore += a;
+			} 
+			allAveg = allScore / 5;// 从对象stuScoreArray中计算总分与平均值
+			return this;
+			}
+			public Test outPutData() {	//定义一个新方法“outPutData”，作用是输出数据到文件
+			try {		//用于监测异常并返回
+			System.out.println("文件将被写入d盘");
+			BufferedWriter writer = new BufferedWriter(new FileWriter(new File("c:\\test.txt"), false));//写入c中的test.txt
+			writer.write("姓名\t  学号\t  成绩\n");
+			for(int i = 0; i < 5; i++) {
+			writer.write(stuInfoArray[i]+"\t\t"+stuInfoArray[i + 5]+"\t\t"+stuScoreArray[i]+"\n");
+			}
+			writer.write("总成绩为：" + allScore);
+			writer.write("平均成绩为：" + allAveg);	//通过write方法将处理后的数据写入txt文本中
+			writer.close();
+			} catch (IOException e) {
+			// 捕获输入与输出的异常IOException
+			e.printStackTrace();
+			}finally{
+			}
+			return this;
+			}
+			public static void main(String[] args) { //定义主方法
+			Test cs = new Test();	//创建对象java
+			cs.inputData().dealData().outPutData();	//运行
+			}
+	}

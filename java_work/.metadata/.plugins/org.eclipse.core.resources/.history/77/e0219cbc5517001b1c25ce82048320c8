@@ -1,0 +1,63 @@
+package xyz.lzw.box;
+/**
+ * 地图类
+ */
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+ 
+public class Map {
+	private int level,x,y;
+	private int[][] mymap = new int[20][20];
+	FileReader r;
+	BufferedReader br;
+	String b="";
+	int t = 0;
+	//主要是将地图文件导入到String中 然后改为int型存入到mymap中 存成一个表
+	Map(int k){
+		level = k;
+		String s;
+		try {
+			File f =new File("maps\\" + level + ".map");
+			r = new FileReader(f);
+			br = new BufferedReader(r);
+		}	catch(IOException e) {
+			System.out.println(e);
+		}
+		
+		try {
+			while((s=br.readLine())!=null) {
+				b = b + s;
+			}
+		}	catch(IOException g) {
+			System.out.println(g);
+		}
+		byte[] db =b.getBytes();
+		int len = b.length();
+		int[] x1 = new int[len];
+		for(int i = 0;i < b.length();i++)//转成int型
+			x1[i] = db[i] -48;
+		for(int i = 0;i < 20;i++) {
+			for(int j = 0;j < 20 ;j++) {
+				mymap[i][j] = x1[t];
+				if(mymap[i][j]==5) {//记录虫子当前所在位置
+					x = j;
+					y = i;
+				}
+				t++;
+			}
+		}
+	}
+	//获得地图
+	int[][] getmap(){
+		return mymap;
+	}
+	//获得X
+	int getX() {
+		return x;
+	}
+	//获得Y
+	int getY() {
+		return y;
+	}

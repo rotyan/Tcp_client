@@ -1,0 +1,10 @@
+package lzt;
+public class NumberRangeException extends Exception {
+//自定义异常，继承自Exception类
+	public NumberRangeException() {
+		super();//构造一个super（）方法
+	}
+	public NumberRangeException(String msg) {
+		super(msg);//调用该super（）方法来初始化父类Exception
+	}
+}
